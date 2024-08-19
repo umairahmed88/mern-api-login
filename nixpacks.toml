@@ -1,0 +1,15 @@
+[phases]
+# Install dependencies for the API
+[phases.install]
+command = "npm install"
+
+[start]
+# Command to start the API server
+command = "npm start"
+
+[build]
+# Explicitly specify the language and the root of the project
+languages = ["nodejs"]
+
+# Optional: Specify Node.js version if needed
+nodejs_version = "18.x"
