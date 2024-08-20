@@ -18,6 +18,9 @@ mongoose
 app.use(express.json());
 app.use(cors());
 app.use("/api/v1/auth", authRouter); //http://localhost:3000/api/v1/auth
+app.get("/", (req, res) => {
+	res.send("API is running");
+});
 
 app.listen(process.env.PORT, () => {
 	console.log(`Listening on port ${process.env.PORT}`);
