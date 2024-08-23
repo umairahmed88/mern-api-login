@@ -16,8 +16,14 @@ mongoose
 	});
 
 app.use(express.json());
-app.use(cors());
-app.use("/api/v1/auth", authRouter); //http://localhost:3000/api/v1/auth
+const corsOptions = {
+	origin: "https://mern-client-login.vercel.app",
+	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+	credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.use("/api/v1/auth", authRouter);
 app.get("/", (req, res) => {
 	res.send("API is running");
 });
