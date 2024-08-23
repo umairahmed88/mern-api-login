@@ -16,6 +16,7 @@ mongoose
 	});
 
 app.use(express.json());
+
 const corsOptions = {
 	origin: "https://mern-client-login.vercel.app",
 	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -23,7 +24,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
 app.use("/api/v1/auth", authRouter);
+
 app.get("/", (req, res) => {
 	res.send("API is running");
 });
