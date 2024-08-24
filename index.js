@@ -6,8 +6,19 @@ import authRouter from "./routes/auth.routes.js";
 
 const app = express();
 
+const isProduction = process.env.NODE_ENV === "production";
+
+const MONGODB_URI = isProduction
+	? process.env.PROD_MONGODB_URI
+	: process.env.DEV_MONGODB_URI;
+
+const PORT = isProduction ? process.env.PROD_PORT : process.env.DEV_PORT;
+const JWT_SECRET = isProduction
+	? process.env.PROD_JWT_SECRET
+	: process.env.DEV_JWT_SECRET;
+
 mongoose
-	.connect(process.env.MONGODB_URI)
+	.connect(MONGODB_URI)
 	.then(() => {
 		console.log(`Connected to MongoDB`);
 	})
@@ -31,6 +42,6 @@ app.get("/", (req, res) => {
 	res.send("API is running");
 });
 
-app.listen(process.env.PORT, () => {
-	console.log(`Listening on port ${process.env.PORT}`);
+app.listen(PORT, () => {
+	console.log(`Listening on port ${PORT}`);
 });
