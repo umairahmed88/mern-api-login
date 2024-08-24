@@ -2,6 +2,9 @@ import jwt from "jsonwebtoken";
 import Auth from "../models/auth.model.js";
 import bcryptjs from "bcryptjs";
 import sgMail from "@sendgrid/mail";
+import "dotenv/config.js";
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const signup = async (req, res) => {
 	try {
@@ -40,11 +43,19 @@ export const signup = async (req, res) => {
 
 		const msg = {
 			to: newUser.email,
-			from: "umairahmedawn@gmail.com",
+			from: {
+				name: "UA",
+				email: process.env.FROM_EMAIL,
+			},
 			subject: "Verify Your Email",
 			text: `Hello ${newUser.username}, please verify your email by clicking on the following link: ${verificationLink}`,
 			html: `<p>Hello ${newUser.username},</p><p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`,
 		};
+
+		console.log(
+			"SendGrid API Key Loaded:",
+			process.env.SENDGRID_API_KEY ? "Yes" : "No"
+		);
 
 		sgMail
 			.send(msg)
