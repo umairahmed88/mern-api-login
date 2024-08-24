@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import Auth from "../models/auth.model.js";
 import bcryptjs from "bcryptjs";
+import sgMail from "@sendgrid/mail";
 
 export const signup = async (req, res) => {
 	try {
@@ -27,14 +28,42 @@ export const signup = async (req, res) => {
 
 		await newUser.save();
 
-		res.status(201).json({
-			user: {
-				id: newUser._id,
-				username: newUser.username,
-				email: newUser.email,
-			},
-			message: "User registered successfully!",
+		const isProduction = process.env.NODE_ENV === "production";
+		const jwtSecret = isProduction
+			? process.env.PROD_JWT_SECRET
+			: process.env.DEV_JWT_SECRET;
+		const verificationToken = jwt.sign({ id: newUser._id }, jwtSecret, {
+			expiresIn: "1h",
 		});
+
+		const verificationLink = `https://ua-mern-api-login.vercel.app/api/v1/auth/verify-email?token=${verificationToken}`;
+
+		const msg = {
+			to: newUser.email,
+			from: "umairahmedawn@gmail.com",
+			subject: "Verify Your Email",
+			text: `Hello ${newUser.username}, please verify your email by clicking on the following link: ${verificationLink}`,
+			html: `<p>Hello ${newUser.username},</p><p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`,
+		};
+
+		sgMail
+			.send(msg)
+			.then(() => {
+				console.log("Verification email sent");
+				res.status(201).json({
+					user: {
+						id: newUser._id,
+						username: newUser.username,
+						email: newUser.email,
+					},
+					message:
+						"User registered successfully! Please check your email to verify your account.",
+				});
+			})
+			.catch((error) => {
+				console.error("Error sending email:", error);
+				res.status(500).json({ message: "Error sending verification email" });
+			});
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
