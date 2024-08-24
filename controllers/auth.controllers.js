@@ -54,6 +54,8 @@ export const signin = async (req, res) => {
 			return res.status(403).json("Invalid credentials!");
 		}
 
+		const isProduction = process.env.NODE_ENV === "production";
+
 		const jwtSecret = isProduction
 			? process.env.PROD_JWT_SECRET
 			: process.env.DEV_JWT_SECRET;
