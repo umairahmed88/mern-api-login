@@ -13,9 +13,6 @@ const MONGODB_URI = isProduction
 	: process.env.DEV_MONGODB_URI;
 
 const PORT = isProduction ? process.env.PROD_PORT : process.env.DEV_PORT;
-const JWT_SECRET = isProduction
-	? process.env.PROD_JWT_SECRET
-	: process.env.DEV_JWT_SECRET;
 
 mongoose
 	.connect(MONGODB_URI)
