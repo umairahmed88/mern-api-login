@@ -14,19 +14,34 @@ router.get("/verify-email", async (req, res) => {
 			: process.env.DEV_JWT_SECRET;
 
 	try {
+		// Verify the JWT token
 		const decoded = jwt.verify(token, jwtSecret);
-		const user = await Auth.findById(decoded.id);
 
-		if (!user) {
-			return res.status(400).json({ message: "Invalid verification link" });
+		// Extract user details from token
+		const { username, email, password } = decoded;
+
+		// Check if the user already exists
+		const existingUser = await Auth.findOne({ email });
+		if (existingUser) {
+			return res.status(400).json({ message: "User already verified" });
 		}
 
-		user.isVerified = true;
-		await user.save();
+		// Create a new user instance
+		const newUser = new Auth({
+			username,
+			email,
+			password,
+			isVerified: true, // Set user as verified
+		});
 
-		res.status(200).json({ message: "Email verified successfully" });
+		// Save the new user to the database
+		await newUser.save();
+
+		res
+			.status(200)
+			.json({ message: "Email verified successfully, user registered!" });
 	} catch (error) {
-		res.status(400).json({ message: error.response.body });
+		res.status(400).json({ message: "Invalid or expired token" });
 	}
 });
 

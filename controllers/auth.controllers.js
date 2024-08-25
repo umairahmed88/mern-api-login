@@ -45,32 +45,20 @@ export const signup = async (req, res) => {
 		// await newUser.save();
 
 		const msg = {
-			to: newUser.email,
+			to: email,
 			from: "umairahmedawn@gmail.com",
 
 			subject: "Verify Your Email",
-			text: `Hello ${newUser.username}, please verify your email by clicking on the following link: ${verificationLink}`,
-			html: `<p>Hello ${newUser.username},</p><p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`,
+			text: `Hello ${username}, please verify your email by clicking on the following link: ${verificationLink}`,
+			html: `<p>Hello ${username},</p><p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`,
 		};
 
-		sgMail
-			.send(msg)
-			.then(() => {
-				console.log("Verification email sent");
-				res.status(201).json({
-					user: {
-						id: newUser._id,
-						username: newUser.username,
-						email: newUser.email,
-					},
-					message:
-						"User registered successfully! Please check your email to verify your account.",
-				});
-			})
-			.catch((error) => {
-				console.error("Error sending email:", error.response.body);
-				res.status(500).json({ message: "Error sending verification email" });
-			});
+		sgMail.send(msg);
+
+		res.status(201).json({
+			message:
+				"Verification email sent! Please check your email to verify your account.",
+		});
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
