@@ -26,7 +26,7 @@ router.get("/verify-email", async (req, res) => {
 
 		res.status(200).json({ message: "Email verified successfully" });
 	} catch (error) {
-		res.status(400).json({ message: "Invalid or expired token" });
+		res.status(400).json({ message: error.response.body });
 	}
 });
 
