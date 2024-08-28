@@ -47,7 +47,7 @@ export const signup = async (req, res) => {
 			}
 		);
 
-		const verificationLink = `https://mern-client-login.vercel.app/verify-email?token=${verificationToken}`;
+		const verificationLink = `https://ua-mern-client.vercel.app/verify-email?token=${verificationToken}`;
 
 		const msg = {
 			to: newUser.email,
@@ -108,6 +108,14 @@ export const signin = async (req, res) => {
 		};
 
 		res.status(200).json({ message: "User logged in", loginUser });
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+};
+
+export const signout = async (req, res) => {
+	try {
+		res.status(200).json("User signout successful");
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}

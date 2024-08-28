@@ -6,12 +6,15 @@ const authSchema = new mongoose.Schema(
 		email: { type: String, required: true },
 		password: { type: String, required: true },
 		isVerified: { type: Boolean, default: false },
+		purchaseHistory: [
+			{ type: mongoose.Schema.Types.ObjectId, ref: "ordersMern" },
+		],
 	},
 	{
 		timestamps: true,
 	}
 );
 
-const Auth = mongoose.model("AuthLogin", authSchema);
+const Auth = mongoose.model("authMern", authSchema);
 
 export default Auth;
