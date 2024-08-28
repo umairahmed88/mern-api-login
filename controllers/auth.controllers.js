@@ -33,7 +33,7 @@ export const signup = async (req, res) => {
 				: `http://localhost:${process.env.DEV_PORT}`;
 
 		// Send verification email
-		const verificationLink = `${clientUrl}/verify-email?token=${verificationToken}`;
+		const verificationLink = `${clientUrl}/api/v1/auth/verify-email?token=${verificationToken}`;
 		const msg = {
 			to: email,
 			from: "umairahmedawn@gmail.com",
