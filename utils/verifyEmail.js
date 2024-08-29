@@ -61,6 +61,8 @@ export const verifyEmail = async (req, res) => {
 			password: decoded.password,
 		});
 
+		user.isVerified = true;
+
 		await newUser.save();
 
 		// Redirect to sign-in page
@@ -71,6 +73,7 @@ export const verifyEmail = async (req, res) => {
 
 		res.redirect(`${clientUrl}/signin`);
 	} catch (error) {
-		return res.status(400).json({ message: "Invalid or expired token" });
+		console.error("Error in verifyEmail:", error);
+		res.status(400).json({ message: "Invalid or expired token" });
 	}
 };
