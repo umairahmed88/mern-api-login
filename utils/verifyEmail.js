@@ -4,6 +4,10 @@ import jwt from "jsonwebtoken";
 export const verifyEmail = async (req, res) => {
 	const { token } = req.query;
 
+	if (!token) {
+		return res.status(400).json({ message: "No token provided" });
+	}
+
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
@@ -18,17 +22,9 @@ export const verifyEmail = async (req, res) => {
 			password: decoded.password,
 		});
 
-		user.isVerified = true;
-
 		await newUser.save();
 
-		// Redirect to sign-in page
-		const clientUrl =
-			process.env.NODE_ENV === "production"
-				? process.env.CLIENT_URL
-				: `http://localhost:${process.env.DEV_PORT}`;
-
-		res.redirect(`${clientUrl}/signin`);
+		res.redirect(`${process.env.CLIENT_URL}/signin`);
 	} catch (error) {
 		console.error("Error in verifyEmail:", error);
 		res.status(400).json({ message: "Invalid or expired token" });

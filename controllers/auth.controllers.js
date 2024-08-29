@@ -27,13 +27,9 @@ export const signup = async (req, res) => {
 			{ expiresIn: "24h" }
 		);
 
-		const clientUrl =
-			process.env.NODE_ENV === "production"
-				? process.env.CLIENT_URL
-				: `http://localhost:${process.env.DEV_PORT}`;
-
-		// Send verification email
-		const verificationLink = `${clientUrl}/verify-email?token=${verificationToken}`;
+		const verificationLink = `${
+			process.env.CLIENT_URL
+		}/verify-email?token=${encodeURIComponent(verificationToken)}`;
 		const msg = {
 			to: email,
 			from: "umairahmedawn@gmail.com",
@@ -66,13 +62,7 @@ export const signin = async (req, res) => {
 			return res.status(403).json("Invalid credentials!");
 		}
 
-		const isProduction = process.env.NODE_ENV === "production";
-
-		const jwtSecret = isProduction
-			? process.env.PROD_JWT_SECRET
-			: process.env.DEV_JWT_SECRET;
-
-		const token = jwt.sign({ id: user._id }, jwtSecret, {
+		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
 			expiresIn: 18000,
 		});
 

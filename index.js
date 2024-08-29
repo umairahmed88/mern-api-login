@@ -8,19 +8,15 @@ const app = express();
 
 const isProduction = process.env.NODE_ENV === "production";
 
-const MONGODB_URI = isProduction
-	? process.env.PROD_MONGODB_URI
-	: process.env.DEV_MONGODB_URI;
-
 const PORT = isProduction ? process.env.PROD_PORT : process.env.DEV_PORT;
 
 mongoose
-	.connect(MONGODB_URI)
+	.connect(process.env.MONGODB_URI)
 	.then(() => {
 		console.log(`Connected to MongoDB`);
 	})
 	.catch((err) => {
-		console.log("Error connecting to MongoDB", err);
+		console.log("Error connecting to MongoDB", err.response);
 	});
 
 app.use(express.json());
