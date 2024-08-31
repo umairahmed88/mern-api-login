@@ -24,7 +24,7 @@ export const signup = async (req, res) => {
 		const verificationToken = jwt.sign(
 			{ username, email, password: hashedPassword },
 			process.env.JWT_SECRET,
-			{ expiresIn: "24h" }
+			{ expiresIn: "1h" }
 		);
 
 		const verificationLink = `${
