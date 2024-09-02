@@ -20,6 +20,7 @@ export const verifyEmail = async (req, res) => {
 			username: decoded.username,
 			email: decoded.email,
 			password: decoded.password,
+			avatar: decoded.avatar,
 		});
 
 		await newUser.save();

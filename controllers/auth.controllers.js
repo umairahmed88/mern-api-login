@@ -7,7 +7,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const signup = async (req, res) => {
 	try {
-		const { username, email, password, confirmPassword } = req.body;
+		const { username, email, password, confirmPassword, avatar } = req.body;
 
 		if (password !== confirmPassword) {
 			return res.status(400).json({ message: "Passwords do not match" });
