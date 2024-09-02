@@ -29,7 +29,7 @@ export const signup = async (req, res) => {
 
 		// Generate a verification token
 		const verificationToken = jwt.sign(
-			{ username, email, password: hashedPassword },
+			{ username, email, password: hashedPassword, avatar },
 			process.env.JWT_SECRET,
 			{ expiresIn: "1h" }
 		);
