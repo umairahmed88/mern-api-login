@@ -16,14 +16,14 @@ export const verifyEmail = async (req, res) => {
 			return res.status(400).json({ message: "Email already verified" });
 		}
 
-		const newUser = new Auth({
+		const sanitizedUser = new Auth({
 			username: decoded.username,
 			email: decoded.email,
 			password: decoded.password,
 			avatar: decoded.avatar,
 		});
 
-		await newUser.save();
+		await sanitizedUser.save();
 
 		res.redirect(`${process.env.CLIENT_URL}/signin`);
 	} catch (error) {

@@ -5,6 +5,13 @@ import sgMail from "@sendgrid/mail";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+const sanitizeUser = (user) => ({
+	id: user._id,
+	username: user.username,
+	email: user.email,
+	avatar: user.avatar,
+});
+
 export const signup = async (req, res) => {
 	try {
 		const { username, email, password, confirmPassword, avatar } = req.body;
@@ -66,14 +73,12 @@ export const signin = async (req, res) => {
 			expiresIn: 18000,
 		});
 
-		const loginUser = {
-			id: user._id,
-			username: user.username,
-			email: user.email,
+		const sanitizedUser = {
+			...sanitizeUser(user),
 			token,
 		};
 
-		res.status(200).json({ message: "User logged in", loginUser });
+		res.status(200).json({ message: "User logged in", sanitizedUser });
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
