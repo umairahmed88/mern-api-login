@@ -84,9 +84,59 @@ export const signin = async (req, res) => {
 	}
 };
 
+export const updateUser = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { username, email: newEmail, password, avatar } = req.body;
+
+		const user = await Auth.findById(id);
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		if (newEmail && newEmail !== user.email) {
+			const existingUser = await Auth.findOne({ email: newEmail });
+			if (existingUser) {
+				return res
+					.status(400)
+					.json("User with this email already exists. Try another email.");
+			}
+		}
+
+		if (password) {
+			req.body.password = bcryptjs.hashSync(password, 10);
+		}
+
+		const updatedUser = await Auth.findByIdAndUpdate(
+			id,
+			{ $set: req.body },
+			{ new: true }
+		);
+
+		if (!updatedUser) {
+			return res.status(500).json({ message: err.message });
+		}
+
+		const token = jwt.sign({ id: updatedUser._id }, process.env.JWT_SECRET, {
+			expiresIn: 1800,
+		});
+
+		const sanitizedUser = {
+			...sanitizeUser(updatedUser),
+			token,
+		};
+
+		res
+			.status(200)
+			.json({ message: "User updated successfully.", sanitizedUser });
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+};
+
 export const signout = async (req, res) => {
 	try {
-		res.status(200).json("User signout successful");
+		res.status(200).clearCookie("token").json("User signout successful");
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
