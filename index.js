@@ -22,7 +22,7 @@ mongoose
 app.use(express.json());
 
 const corsOptions = {
-	origin: isProduction ? process.env.CLIENT_URL : "http://localhost:3000",
+	origin: isProduction ? process.env.CLIENT_URL : "http://localhost:5173",
 	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 	credentials: true,
 };
