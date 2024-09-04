@@ -94,15 +94,41 @@ export const updateUser = async (req, res) => {
 			return res.status(404).json({ message: "User not found" });
 		}
 
+		// Check if the email is being changed
 		if (newEmail && newEmail !== user.email) {
 			const existingUser = await Auth.findOne({ email: newEmail });
 			if (existingUser) {
-				return res
-					.status(400)
-					.json("User with this email already exists. Try another email.");
+				return res.status(400).json({
+					message: "User with this email already exists. Try another email.",
+				});
 			}
+
+			// Generate a new verification token for the new email
+			const verificationToken = jwt.sign(
+				{ ...user.toObject(), email: newEmail },
+				process.env.JWT_SECRET,
+				{ expiresIn: "1h" }
+			);
+			const verificationLink = `${
+				process.env.CLIENT_URL
+			}/verify-email?token=${encodeURIComponent(verificationToken)}`;
+			const msg = {
+				to: newEmail,
+				from: "umairahmedawn@gmail.com",
+				subject: "Verify Your New Email Address",
+				text: `Hello ${username}, please verify your new email address by clicking on the following link: ${verificationLink}`,
+				html: `<p>Hello ${username},</p><p>Please verify your new email address by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`,
+			};
+
+			await sgMail.send(msg);
+
+			return res.status(200).json({
+				message:
+					"User updated. Please verify your new email address by following the link sent to your new email.",
+			});
 		}
 
+		// Hash the password if it is being updated
 		if (password) {
 			req.body.password = bcryptjs.hashSync(password, 10);
 		}
@@ -114,7 +140,7 @@ export const updateUser = async (req, res) => {
 		);
 
 		if (!updatedUser) {
-			return res.status(500).json({ message: err.message });
+			return res.status(500).json({ message: "Failed to update user" });
 		}
 
 		const token = jwt.sign({ id: updatedUser._id }, process.env.JWT_SECRET, {
