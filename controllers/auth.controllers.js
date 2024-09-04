@@ -70,7 +70,7 @@ export const signin = async (req, res) => {
 		}
 
 		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-			expiresIn: "1hr",
+			expiresIn: "1h",
 		});
 
 		const sanitizedUser = {
@@ -118,7 +118,7 @@ export const updateUser = async (req, res) => {
 		}
 
 		const token = jwt.sign({ id: updatedUser._id }, process.env.JWT_SECRET, {
-			expiresIn: "1hr",
+			expiresIn: "1h",
 		});
 
 		const sanitizedUser = {
