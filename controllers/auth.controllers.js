@@ -124,7 +124,7 @@ export const updateUser = async (req, res) => {
 
 			return res.status(200).json({
 				message:
-					"User updated. Please verify your new email address by following the link sent to your new email.",
+					"User updated. Email has sent to your provided email. Please verify your new email address by following the link sent to your new email.",
 			});
 		}
 
