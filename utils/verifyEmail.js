@@ -31,6 +31,6 @@ export const verifyEmail = async (req, res) => {
 		res.redirect(`${process.env.CLIENT_URL}/signin`);
 	} catch (error) {
 		console.error("Error in verifyEmail:", error.message);
-		res.status(400).json({ message: "Invalid or expired token" });
+		res.status(400).json({ message: error.message });
 	}
 };

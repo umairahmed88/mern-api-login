@@ -135,7 +135,7 @@ export const updateUser = async (req, res) => {
 
 		const updatedUser = await Auth.findByIdAndUpdate(
 			id,
-			{ $set: req.body },
+			{ $set: Object.assign(user.toObject(), req.body) },
 			{ new: true }
 		);
 
