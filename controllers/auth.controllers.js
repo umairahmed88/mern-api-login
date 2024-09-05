@@ -105,7 +105,7 @@ export const updateUser = async (req, res) => {
 
 			// Generate a new verification token for the new email
 			const verificationToken = jwt.sign(
-				{ ...user.toObject(), email: newEmail },
+				{ email: newEmail, username: user.username },
 				process.env.JWT_SECRET,
 				{ expiresIn: "1h" }
 			);
@@ -116,8 +116,8 @@ export const updateUser = async (req, res) => {
 				to: newEmail,
 				from: "umairahmedawn@gmail.com",
 				subject: "Verify Your New Email Address",
-				text: `Hello ${username}, please verify your new email address by clicking on the following link: ${verificationLink}`,
-				html: `<p>Hello ${username},</p><p>Please verify your new email address by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`,
+				text: `Hello ${user.username}, please verify your new email address by clicking on the following link: ${verificationLink}`,
+				html: `<p>Hello ${user.username},</p><p>Please verify your new email address by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`,
 			};
 
 			await sgMail.send(msg);

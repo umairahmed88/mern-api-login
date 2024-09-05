@@ -10,17 +10,24 @@ export const verifyEmail = async (req, res) => {
 
 	try {
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+		const { email, username, password, avatar } = decoded;
 
-		const user = await Auth.findOne({ email: decoded.email });
+		let user = await Auth.findOne({ email });
 
 		if (user) {
 			// Email already verified or user exists with the new email
-			if (user.email === decoded.email) {
+			if (user.email === email) {
 				return res.status(400).json({ message: "Email already verified" });
 			}
 
-			Object.assign(user, decoded);
-			await user.save();
+			const sanitizedUser = new Auth({
+				username,
+				email,
+				password,
+				avatar,
+			});
+
+			await sanitizedUser.save();
 			return res.redirect(`${process.env.CLIENT_URL}/signin`);
 		}
 
