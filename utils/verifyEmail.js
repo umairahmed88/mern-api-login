@@ -35,7 +35,7 @@ export const verifyEmail = async (req, res) => {
 
 		await sanitizedUser.save();
 
-		res.redirect(`${process.env.CLIENT_URL}/signin`);
+		res.redirect(`${process.env.CLIENT_URL}/signup`);
 	} catch (error) {
 		console.error("Error in verifyEmail:", error.message);
 		res.status(400).json({ message: error.message });
