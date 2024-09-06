@@ -28,7 +28,7 @@ export const verifyEmail = async (req, res) => {
 			});
 
 			await sanitizedUser.save();
-			return res.redirect(`${process.env.CLIENT_URL}/signin`);
+			return res.redirect(`${process.env.CLIENT_URL}/signup`);
 		}
 
 		const sanitizedUser = new Auth(decoded);
