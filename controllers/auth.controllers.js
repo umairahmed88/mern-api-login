@@ -1,14 +1,33 @@
-import Auth from "../models/auth.model.js";
+import { Auth } from "../models/auth.model.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import sgMail from "@sendgrid/mail";
+import validator from "validator";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const isPasswordValid = (password) => {
+	if (!validator.isLength(password, { min: 8 }))
+		return "Password must be at least 8 characters long.";
+	if (!/[A-Z]/.test(password))
+		return "Password must contain at least one uppercase letter.";
+	if (!/[a-z]/.test(password))
+		return "Password must contain at least one lowercase letter.";
+	if (!/[0-9]/.test(password))
+		return "Password must contain at least one number.";
+	if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
+		return "Password must contain at least one special character.";
+	const commonPasswords = ["123456", "password", "12345678"];
+	if (commonPasswords.includes(password))
+		return "Please choose a stronger password.";
+	return null;
+};
 
 const sanitizeUser = (user) => ({
 	id: user._id,
 	username: user.username,
 	email: user.email,
+	role: user.role,
 	avatar: user.avatar,
 });
 
@@ -17,19 +36,34 @@ export const signup = async (req, res) => {
 		const { username, email, password, confirmPassword, avatar } = req.body;
 
 		if (password !== confirmPassword) {
-			return res.status(400).json({ message: "Passwords do not match" });
+			return res.status(400).json({ message: "Passwords do not match." });
 		}
 
-		const existingUser = await Auth.findOne({ email });
-		if (existingUser) {
-			return res.status(400).json({ message: "User already exists" });
+		const passwordError = isPasswordValid(password);
+		if (passwordError) {
+			return res.status(400).json({ message: passwordError });
 		}
+
+		const isUser = await Auth.findOne({ email });
+		if (isUser) {
+			return res.status(400).json({
+				message:
+					"User with this email already signed up. Please signup with other email.",
+			});
+		}
+
+		const role = req.body.role || "user";
 
 		const hashedPassword = bcryptjs.hashSync(password, 10);
 
-		// Generate a verification token
 		const verificationToken = jwt.sign(
-			{ username, email, password: hashedPassword, avatar },
+			{
+				username,
+				email,
+				password: hashedPassword,
+				role,
+				avatar,
+			},
 			process.env.JWT_SECRET,
 			{ expiresIn: "1h" }
 		);
@@ -37,12 +71,13 @@ export const signup = async (req, res) => {
 		const verificationLink = `${
 			process.env.CLIENT_URL
 		}/verify-email?token=${encodeURIComponent(verificationToken)}`;
+
 		const msg = {
 			to: email,
-			from: "umairahmedawn@gmail.com",
-			subject: "Verify Your Email",
-			text: `Hello ${username}, welcome to our family, please verify your email by clicking on the following link: ${verificationLink}`,
-			html: `<p>Hello ${username},</p><p> welcome to our family, Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`,
+			from: process.env.VERIFICATION_EMAIL_FROM,
+			subject: "Verify your email address",
+			text: `Hello ${username}, welcome to our e-commerce web app, please verify email by clicking on the following link: ${verificationLink}`,
+			html: `<p>Hello ${username},</p><p> welcome to our e-commerce web app, please verify email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`,
 		};
 
 		await sgMail.send(msg);
@@ -96,8 +131,8 @@ export const updateUser = async (req, res) => {
 
 		// Check if the email is being changed
 		if (newEmail && newEmail !== user.email) {
-			const existingUser = await Auth.findOne({ email: newEmail });
-			if (existingUser) {
+			const isUser = await Auth.findOne({ email: newEmail });
+			if (isUser) {
 				return res.status(400).json({
 					message: "User with this email already exists. Try another email.",
 				});

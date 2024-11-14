@@ -1,4 +1,4 @@
-import Auth from "../models/auth.model.js";
+import { Auth } from "../models/auth.model.js";
 import jwt from "jsonwebtoken";
 
 export const verifyEmail = async (req, res) => {
