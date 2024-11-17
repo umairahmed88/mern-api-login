@@ -306,7 +306,7 @@ export const updateUser = async (req, res) => {
 
 export const signout = async (req, res) => {
 	try {
-		res.status(200).clearCookie("token").json("User signout successful");
+		res.status(200).json({ message: "signed out" });
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
