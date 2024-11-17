@@ -1,45 +1,60 @@
-import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
-import { toast } from "react-toastify";
+import { Auth } from "../models/auth.model.js";
+import jwt from "jsonwebtoken";
 
-const VerifyEmail = () => {
-	const navigate = useNavigate();
-	const [searchParams] = useSearchParams();
-	const token = searchParams.get("token");
+const sanitizeUser = (user) => ({
+	id: user._id,
+	username: user.username,
+	email: user.email,
+	avatar: user.avatar,
+});
 
-	useEffect(() => {
-		const verifyEmail = async () => {
-			try {
-				const response = await axios.get(
-					`https://mern-api-ua.vercel.app/api/v1/auth/verify-email?token=${token}`
-				);
+export const verifyEmail = async (req, res) => {
+	try {
+		const { token } = req.query;
 
-				if (response.data.message === "Email already verified") {
-					toast.info("Your email has already been verified");
-					navigate("/signin");
-				} else {
-					toast.success("Email verified");
-				}
+		if (!token) {
+			return res.status(400).json("Invalid verification link.");
+		}
 
-				navigate("/signin");
-			} catch (error) {
-				if (error.response) {
-					toast.error(
-						`Error verifying signup email: ${error.response.data.message}`
-					);
-				} else if (error.response) {
-					toast.error("No response, please try again");
-				} else {
-					toast.error("An error occurred, please try again later.");
-				}
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+		const { id, username, email: newEmail, password, avatar } = decoded;
+
+		const existingUser = await Auth.findById(id);
+		if (existingUser) {
+			if (!existingUser.isVerified || existingUser.email !== newEmail) {
+				existingUser.email = newEmail;
+				existingUser.isVerified = true;
+				await existingUser.save();
+
+				const sanitizedUser = sanitizeUser(existingUser);
+				return res.status(200).json({
+					message: "Email updated and verified successfully.",
+					user: sanitizedUser,
+				});
+			} else {
+				return res.status(400).json("This email is already verified.");
 			}
-		};
+		} else {
+			const newUser = new Auth({
+				username,
+				email: newEmail,
+				password,
+				avatar,
+				isVerified: true,
+			});
 
-		verifyEmail();
-	}, [navigate, token]);
+			await newUser.save();
 
-	return <div>Verifying Email...</div>;
+			const sanitizedUser = sanitizeUser(newUser);
+
+			res.status(200).json({
+				message:
+					"Email verified successfully! Your account has been created, you can now sign in.",
+				sanitizedUser,
+			});
+		}
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
 };
-
-export default VerifyEmail;

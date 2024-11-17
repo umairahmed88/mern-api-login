@@ -19,8 +19,6 @@ mongoose
 		console.log("Error connecting to MongoDB", err.response);
 	});
 
-app.use(express.json());
-
 const corsOptions = {
 	origin: (origin, callback) => {
 		const whitelist = [process.env.CLIENT_URL, "http://localhost:5173"];
@@ -36,6 +34,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(express.json());
 
 app.use("/api/v1/auth", authRouter);
 
