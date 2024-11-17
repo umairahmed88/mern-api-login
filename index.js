@@ -16,7 +16,7 @@ mongoose
 		console.log(`Connected to MongoDB`);
 	})
 	.catch((err) => {
-		console.log("Error connecting to MongoDB", err.message || err);
+		console.log("Error connecting to MongoDB", err.response);
 	});
 
 const corsOptions = {
