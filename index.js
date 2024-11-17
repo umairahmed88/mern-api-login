@@ -37,6 +37,9 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use("/api/v1/auth", authRouter);
+app.get("/.well-known/vercel/microfrontend-routing", (req, res) => {
+	res.status(204).send();
+});
 
 app.get("/", (req, res) => {
 	res.send("API is running");
