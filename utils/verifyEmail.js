@@ -1,43 +1,45 @@
-import { Auth } from "../models/auth.model.js";
-import jwt from "jsonwebtoken";
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-export const verifyEmail = async (req, res) => {
-	const { token } = req.query;
+const VerifyEmail = () => {
+	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
+	const token = searchParams.get("token");
 
-	if (!token) {
-		return res.status(400).json({ message: "No token provided" });
-	}
+	useEffect(() => {
+		const verifyEmail = async () => {
+			try {
+				const response = await axios.get(
+					`https://mern-api-ua.vercel.app/api/v1/auth/verify-email?token=${token}`
+				);
 
-	try {
-		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-		const { email, username, password, avatar } = decoded;
+				if (response.data.message === "Email already verified") {
+					toast.info("Your email has already been verified");
+					navigate("/signin");
+				} else {
+					toast.success("Email verified");
+				}
 
-		let user = await Auth.findOne({ email });
-
-		if (user) {
-			// Email already verified or user exists with the new email
-			if (user.email === email) {
-				return res.status(400).json({ message: "Email already verified" });
+				navigate("/signin");
+			} catch (error) {
+				if (error.response) {
+					toast.error(
+						`Error verifying signup email: ${error.response.data.message}`
+					);
+				} else if (error.response) {
+					toast.error("No response, please try again");
+				} else {
+					toast.error("An error occurred, please try again later.");
+				}
 			}
+		};
 
-			const sanitizedUser = new Auth({
-				username,
-				email,
-				password,
-				avatar,
-			});
+		verifyEmail();
+	}, [navigate, token]);
 
-			await sanitizedUser.save();
-			return res.redirect(`${process.env.CLIENT_URL}/signup`);
-		}
-
-		const sanitizedUser = new Auth(decoded);
-
-		await sanitizedUser.save();
-
-		res.redirect(`${process.env.CLIENT_URL}/signup`);
-	} catch (error) {
-		console.error("Error in verifyEmail:", error.message);
-		res.status(400).json({ message: error.message });
-	}
+	return <div>Verifying Email...</div>;
 };
+
+export default VerifyEmail;
