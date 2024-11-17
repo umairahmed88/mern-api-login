@@ -22,10 +22,11 @@ mongoose
 const corsOptions = {
 	origin: (origin, callback) => {
 		const whitelist = [process.env.CLIENT_URL, "http://localhost:5173"];
-		if (whitelist.indexOf(origin) !== -1 || !origin) {
+		if (whitelist.includes(origin) || !origin) {
 			callback(null, true);
 		} else {
-			callback(new Error("Not allowed by CORS"));
+			console.error(`Blocked by CORS: Origin ${origin}`);
+			callback(null, false);
 		}
 	},
 	methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
